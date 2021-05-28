@@ -32,9 +32,24 @@ RUN make build
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 FROM gcr.io/distroless/static@sha256:be5d77c62dbe7fedfb0a4e5ec2f91078080800ab1f18358e5f31fcc8faa023c4
 LABEL description="istio certificate agent to serve certificate signing requests via cert-manager"
+||||||| parent of b9d8cd1 (Add delve.)
+FROM gcr.io/distroless/static@sha256:3cd546c0b3ddcc8cae673ed078b59067e22dea676c66bd5ca8d302aef2c6e845
+LABEL description="istio certificate agent to serve certificate signing requests via cert-manager"
+
+RUN git clone https://github.com/go-delve/delve; \
+	cd delve; \
+	go build ./cmd/dlv
 
 WORKDIR /
+
+#FROM gcr.io/distroless/static@sha256:3cd546c0b3ddcc8cae673ed078b59067e22dea676c66bd5ca8d302aef2c6e845
+FROM ubuntu:bionic
+LABEL description="istio certificate agent to serve certificate signing requests via cert-manager"
+
 USER 1001
 COPY --from=builder /workspace/bin/cert-manager-istio-csr /usr/bin/cert-manager-istio-csr
+
+COPY ./bin/cert-manager-istio-csr-linux /usr/bin/cert-manager-istio-csr
+COPY --from=0 /build/delve/dlv /usr/bin/dlv
 
 ENTRYPOINT ["/usr/bin/cert-manager-istio-csr"]

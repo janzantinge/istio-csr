@@ -61,6 +61,12 @@ verify: test build ## tests and builds cert-manager-istio-csr
 image: ## build docker image targeting all supported platforms
 	docker buildx build --platform=$(IMAGE_PLATFORMS) -t quay.io/jetstack/cert-manager-istio-csr:v0.3.0 --output type=oci,dest=./bin/cert-manager-istio-csr-oci .
 
+build_image_binary: ## builds image binary
+	GOARCH=$(ARCH) GOOS=linux CGO_ENABLED=0 go build -o ./bin/cert-manager-istio-csr-linux  ./cmd/.
+
+image: $(BINDIR)/dlv build_image_binary ## build docker image from binary
+	docker build -t quay.io/jetstack/cert-manager-istio-csr:v0.1.2 .
+
 .PHONY: clean
 clean: ## clean up created files
 	rm -rf \
@@ -99,6 +105,9 @@ $(BINDIR)/ginkgo:
 
 $(BINDIR)/kind:
 	go build -o $(BINDIR)/kind sigs.k8s.io/kind
+
+$(BINDIR)/dlv:
+	pushd delve;GOARCH=$(ARCH) GOOS=linux CGO_ENABLED=0 go build -o $(BINDIR)/dlv ./cmd/dlv;popd
 
 $(BINDIR)/helm:
 	curl -o $(BINDIR)/helm.tar.gz -LO "https://get.helm.sh/helm-v$(HELM_VERSION)-$(OS)-$(ARCH).tar.gz"
