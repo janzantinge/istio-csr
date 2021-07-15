@@ -109,6 +109,11 @@ volumeMounts: []
 #  mountPath: /etc/tls
 
 
+istio:
+  certificate:
+    dnsNames:
+    - istiod.istio-system.svc
+
 resources: {}
   # -- Kubernetes pod resource limits for istio-csr.
   # limits:

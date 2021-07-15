@@ -5,7 +5,9 @@ metadata:
   namespace: istio-system
 spec:
   dnsNames:
-  - istiod.istio-system.svc
+  {{- range .Values.istio.certificate.dnsNames }}
+    - {{ . }}
+  {{- end  }}
   uris:
     - spiffe://cluster.local/ns/istio-system/sa/istiod-service-account
   secretName: istiod-tls
